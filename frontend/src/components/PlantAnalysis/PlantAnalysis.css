@@ -1,0 +1,97 @@
+.plant-analysis {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.plant-analysis h2 {
+  color: #2d3748;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.upload-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.file-input {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.preview-container {
+  margin: 1rem 0;
+}
+
+.preview-image {
+  max-width: 300px;
+  max-height: 300px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.analyze-button {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.analyze-button:hover:not(:disabled) {
+  background: #38a169;
+}
+
+.analyze-button:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.result-section {
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.result-section.healthy {
+  background: #f0fff4;
+  border: 2px solid #48bb78;
+}
+
+.result-section.diseased {
+  background: #fff5f5;
+  border: 2px solid #f56565;
+}
+
+.recommendations {
+  margin-top: 1rem;
+}
+
+.recommendations h4 {
+  margin-bottom: 0.5rem;
+  color: #2d3748;
+}
+
+.recommendations ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.recommendations li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.recommendations li:last-child {
+  border-bottom: none;
+}
