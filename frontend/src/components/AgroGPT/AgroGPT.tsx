@@ -39,7 +39,6 @@ const AgroGPT: React.FC = () => {
     try {
       const response = await chatWithAgroGPT(inputMessage, messages);
       
-      // ФИКС: проверяем что response и response.response существуют
       const assistantResponse = response?.response || "Извините, не удалось получить ответ. Попробуйте еще раз.";
       
       const assistantMessage: AgroGPTMessage = {
@@ -71,76 +70,122 @@ const AgroGPT: React.FC = () => {
     }
   };
 
+  const suggestionExamples = [
+    { text: "Как правильно поливать томаты?", emoji: "💧" },
+    { text: "Какие удобрения лучше для картофеля?", emoji: "🌱" },
+    { text: "Как бороться с вредителями капусты?", emoji: "🐛" },
+    { text: "Когда сажать морковь весной?", emoji: "🥕" },
+    { text: "Почему желтеют листья у огурцов?", emoji: "🥒" },
+    { text: "Как подготовить почву для посадки?", emoji: "🪴" }
+  ];
+
   return (
     <div className="agro-gpt">
-      <h2>🤖 AgroGPT - Ваш агрономический помощник</h2>
-      
-      <div className="chat-container">
-        <div className="messages-container">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`message ${message.role === 'user' ? 'user-message' : 'assistant-message'}`}
-            >
-              <div className="message-content">
-                {message.content}
-              </div>
-              <div className="message-time">
-                {message.timestamp.toLocaleTimeString()}
-              </div>
-            </div>
-          ))}
-          {loading && (
-            <div className="message assistant-message">
-              <div className="message-content typing-indicator">
-                AgroGPT печатает...
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <div className="input-container">
-          <textarea
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Задайте вопрос о растениях, почве, удобрениях..."
-            className="message-input"
-            rows={3}
-            disabled={loading}
-          />
-          <button
-            onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || loading}
-            className="send-button"
-          >
-            Отправить
-          </button>
+      <div className="chat-header">
+        <div className="header-avatar">🤖</div>
+        <div className="header-content">
+          <h2>AgroGPT</h2>
+          <p>Ваш интеллектуальный помощник в агрономии</p>
         </div>
       </div>
+      
+      <div className="chat-main">
+        <div className="chat-container">
+          <div className="messages-container">
+            <div className="welcome-message">
+              <div className="welcome-icon">🌿</div>
+              <div className="welcome-text">
+                <h3>Добро пожаловать в AgroGPT!</h3>
+                <p>Задавайте вопросы о растениях, почве, удобрениях и сельском хозяйстве</p>
+              </div>
+            </div>
 
-      <div className="suggestions">
-        <h4>Примеры вопросов:</h4>
-        <div className="suggestion-chips">
-          <button
-            onClick={() => setInputMessage("Как правильно поливать томаты?")}
-            className="suggestion-chip"
-          >
-            Полив томатов
-          </button>
-          <button
-            onClick={() => setInputMessage("Какие удобрения лучше для картофеля?")}
-            className="suggestion-chip"
-          >
-            Удобрения для картофеля
-          </button>
-          <button
-            onClick={() => setInputMessage("Как бороться с вредителями капусты?")}
-            className="suggestion-chip"
-          >
-            Вредители капусты
-          </button>
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`message ${message.role === 'user' ? 'user-message' : 'assistant-message'}`}
+              >
+                {message.role === 'assistant' && (
+                  <div className="message-avatar">🤖</div>
+                )}
+                <div className="message-content-wrapper">
+                  <div className="message-content">
+                    {message.content}
+                  </div>
+                  <div className="message-time">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
+                {message.role === 'user' && (
+                  <div className="message-avatar">👤</div>
+                )}
+              </div>
+            ))}
+            
+            {loading && (
+              <div className="message assistant-message typing">
+                <div className="message-avatar">🤖</div>
+                <div className="message-content-wrapper">
+                  <div className="message-content typing-indicator">
+                    <div className="typing-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                    AgroGPT печатает...
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="input-container">
+            <div className="input-wrapper">
+              <textarea
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Задайте вопрос о растениях, почве, удобрениях..."
+                className="message-input"
+                rows={1}
+                disabled={loading}
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || loading}
+                className={`send-button ${loading ? 'loading' : ''}`}
+              >
+                {loading ? (
+                  <div className="button-spinner"></div>
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="suggestions-sidebar">
+          <div className="suggestions-header">
+            <div className="suggestions-icon">💡</div>
+            <h4>Примеры вопросов</h4>
+          </div>
+          <div className="suggestions-list">
+            {suggestionExamples.map((suggestion, index) => (
+              <button
+                key={index}
+                onClick={() => setInputMessage(suggestion.text)}
+                className="suggestion-card"
+              >
+                <div className="suggestion-emoji">{suggestion.emoji}</div>
+                <span className="suggestion-text">{suggestion.text}</span>
+                <div className="suggestion-arrow">→</div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { analyzePlant } from '../../services/api';
+import './PlantAnalysis.css'
 
 const PlantAnalysis: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -33,53 +34,116 @@ const PlantAnalysis: React.FC = () => {
 
   return (
     <div className="plant-analysis">
-      <h2>🔍 Анализ растений</h2>
+      <div className="analysis-header">
+        <div className="header-icon">🔍</div>
+        <h2>Анализ растений</h2>
+        <p>Загрузите фото растения для диагностики заболеваний</p>
+      </div>
       
       <div className="upload-section">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileSelect}
-          className="file-input"
-        />
-        
-        {previewUrl && (
-          <div className="preview-container">
-            <img src={previewUrl} alt="Preview" className="preview-image" />
+        <div className="upload-card">
+          <div className="upload-area">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="file-input"
+              id="file-upload"
+            />
+            <label htmlFor="file-upload" className="upload-label">
+              <div className="upload-icon">📁</div>
+              <div className="upload-text">
+                <span className="upload-title">Выберите изображение</span>
+                <span className="upload-subtitle">PNG, JPG, JPEG до 10MB</span>
+              </div>
+            </label>
           </div>
-        )}
-        
-        <button 
-          onClick={handleAnalyze} 
-          disabled={!selectedFile || loading}
-          className="analyze-button"
-        >
-          {loading ? 'Анализ...' : 'Проанализировать'}
-        </button>
+          
+          {previewUrl && (
+            <div className="preview-container">
+              <div className="preview-header">
+                <span>Предпросмотр</span>
+                <button 
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setPreviewUrl('');
+                  }}
+                  className="clear-preview"
+                >
+                  ✕
+                </button>
+              </div>
+              <img src={previewUrl} alt="Preview" className="preview-image" />
+            </div>
+          )}
+          
+          <button 
+            onClick={handleAnalyze} 
+            disabled={!selectedFile || loading}
+            className={`analyze-button ${loading ? 'loading' : ''}`}
+          >
+            {loading ? (
+              <>
+                <div className="button-spinner"></div>
+                Идет анализ...
+              </>
+            ) : (
+              <>
+                <span></span>
+                Проанализировать
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {analysisResult && (
         <div className={`result-section ${analysisResult.is_healthy ? 'healthy' : 'diseased'}`}>
-          <h3>Результаты анализа:</h3>
-          <p>Состояние: <strong>{analysisResult.is_healthy ? 'Здоров' : 'Болен'}</strong></p>
-          <p>Уверенность: {((analysisResult.confidence || 0) * 100).toFixed(1)}%</p>
+          <div className="result-header">
+            <div className={`status-indicator ${analysisResult.is_healthy ? 'healthy' : 'diseased'}`}>
+              {analysisResult.is_healthy ? '🌿' : '⚠️'}
+            </div>
+            <div className="result-title">
+              <h3>Результаты анализа</h3>
+              <div className="confidence-badge">
+                Уверенность: {((analysisResult.confidence || 0) * 100).toFixed(1)}%
+              </div>
+            </div>
+          </div>
           
-          {analysisResult.disease_name && (
-            <p>Заболевание: {analysisResult.disease_name}</p>
-          )}
-          
-          <div className="recommendations">
-            <h4>Рекомендации:</h4>
-            <ul>
-              {/* ФИКС: проверяем что recommendations существует */}
-              {(analysisResult.recommendations || [
-                "Рекомендуется консультация с агрономом",
-                "Проведите дополнительную диагностику",
-                "Следите за развитием растения"
-              ]).map((rec: string, index: number) => (
-                <li key={index}>{rec}</li>
-              ))}
-            </ul>
+          <div className="result-content">
+            <div className="status-card">
+              <span className="status-label">Состояние растения:</span>
+              <span className={`status-value ${analysisResult.is_healthy ? 'healthy' : 'diseased'}`}>
+                {analysisResult.is_healthy ? 'Здорово' : 'Требует внимания'}
+              </span>
+            </div>
+            
+            {analysisResult.disease_name && (
+              <div className="disease-card">
+                <span className="disease-label">Диагностировано:</span>
+                <span className="disease-name">{analysisResult.disease_name}</span>
+              </div>
+            )}
+            
+            <div className="recommendations">
+              <div className="recommendations-header">
+                <div className="recommendations-icon">💡</div>
+                <h4>Рекомендации по уходу</h4>
+              </div>
+              <div className="recommendations-list">
+                {(analysisResult.recommendations || [
+                  "Рекомендуется консультация с агрономом",
+                  "Проведите дополнительную диагностику",
+                  "Следите за развитием растения"
+                ]).map((rec: string, index: number) => (
+                  <div key={index} className="recommendation-item">
+                    <div className="recommendation-bullet"></div>
+                    <span>{rec}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

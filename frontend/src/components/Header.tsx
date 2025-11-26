@@ -8,9 +8,11 @@ const Header: React.FC = () => {
   return (
     <header className="header">
       <div className="header-content">
-        <h1 className="logo">
-          🌱 AgroAI
-        </h1>
+        <Link 
+          to="/" 
+          className="logo-link"
+        >
+          🌱 FarMax        </Link>
         <nav className="nav">
           <Link 
             to="/plant-analysis" 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { checkBackendConnection } from './services/api';
 import './App.css';
 import Header from './components/Header';
@@ -24,7 +24,6 @@ function App() {
       <div className="App">
         <Header />
         <main className="main-content">
-          {/* Показываем статус подключения */}
           {backendConnected === false && (
             <div className="connection-warning">
               ⚠️ Внимание: Не удалось подключиться к бэкенду. Убедитесь, что сервер запущен на порту 8000.
@@ -44,23 +43,57 @@ function App() {
 }
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const features = [
+    {
+      id: 1,
+      title: "🔍 Анализ растений",
+      description: "Определите болезни растений по фотографии",
+      path: "/plant-analysis",
+      gradient: "var(--success-gradient)",
+      icon: "🔍"
+    },
+    {
+      id: 2,
+      title: "🤖 AgroGPT",
+      description: "AI-консультант по вопросам агрономии",
+      path: "/agro-gpt",
+      gradient: "var(--blue-gradient)",
+      icon: "🤖"
+    },
+    {
+      id: 3,
+      title: "📈 Прогноз урожайности",
+      description: "Предсказание урожая на основе данных",
+      path: "/yield-prediction",
+      gradient: "var(--orange-gradient)",
+      icon: "📈"
+    }
+  ];
+
+  const handleCardClick = (path: string) => {
+    navigate(path);
+  };
+
   return (
     <div className="home-page">
       <h1>Agro AI Platform</h1>
       <p>Интеллектуальная платформа для современных агрономов</p>
       <div className="features-grid">
-        <div className="feature-card">
-          <h3>🔍 Анализ растений</h3>
-          <p>Определите болезни растений по фотографии</p>
-        </div>
-        <div className="feature-card">
-          <h3>🤖 AgroGPT</h3>
-          <p>AI-консультант по вопросам агрономии</p>
-        </div>
-        <div className="feature-card">
-          <h3>📈 Прогноз урожайности</h3>
-          <p>Предсказание урожая на основе данных</p>
-        </div>
+        {features.map((feature) => (
+          <div 
+            key={feature.id}
+            className="feature-card"
+            onClick={() => handleCardClick(feature.path)}
+            style={{ '--card-gradient': feature.gradient } as React.CSSProperties}
+          >
+            <div className="feature-icon">{feature.icon}</div>
+            <h3>{feature.title}</h3>
+            <p>{feature.description}</p>
+            <div className="feature-arrow">→</div>
+          </div>
+        ))}
       </div>
     </div>
   );
