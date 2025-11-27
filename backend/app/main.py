@@ -10,7 +10,7 @@ import logging
 from datetime import datetime
 
 from app.services.plant_analysis import PlantAnalysisService
-from app.services.agro_gpt import AgroGPTService
+from app.services.agro_gpt import agro_gpt_service  # Импортируем готовый экземпляр
 from app.services.yield_prediction import YieldPredictionService
 from app.utils.response_formatter import ResponseFormatter
 
@@ -37,7 +37,7 @@ app.add_middleware(
 
 # Инициализация сервисов
 plant_service = PlantAnalysisService()
-agro_gpt_service = AgroGPTService()
+# agro_gpt_service уже импортирован как готовый экземпляр
 yield_service = YieldPredictionService()
 response_formatter = ResponseFormatter()
 
@@ -202,14 +202,21 @@ async def chat_with_agrogpt(request: ChatRequest):
         if len(request.message) > 1000:
             raise HTTPException(status_code=400, detail="Сообщение слишком длинное")
         
-        # Генерация ответа
-        response = agro_gpt_service.generate_response(
-            request.message, 
-            request.conversation_history or []
+        # Генерация ответа с использованием готового экземпляра
+        response = await agro_gpt_service.process_message(
+            user_message=request.message,
+            session_id="default"  # или можно передавать из запроса
         )
         
         # Форматирование ответа
-        formatted_response = response_formatter.format_chat_response(response)
+        formatted_response = {
+            "status": "success",
+            "data": {
+                "response": response.get('response', ''),
+                "intent": response.get('intent', ''),
+                "timestamp": datetime.now().isoformat()
+            }
+        }
         
         logger.info("AgroGPT response generated successfully")
         return formatted_response
@@ -218,9 +225,11 @@ async def chat_with_agrogpt(request: ChatRequest):
         raise
     except Exception as e:
         logger.error(f"AgroGPT chat error: {str(e)}")
-        error_response = response_formatter.format_error(
-            f"Ошибка при генерации ответа: {str(e)}"
-        )
+        error_response = {
+            "status": "error",
+            "error": f"Ошибка при генерации ответа: {str(e)}",
+            "timestamp": datetime.now().isoformat()
+        }
         return JSONResponse(
             status_code=500,
             content=error_response
@@ -297,14 +306,22 @@ async def internal_server_error_handler(request, exc):
     logger.error(f"Internal server error: {str(exc)}")
     return JSONResponse(
         status_code=500,
-        content=response_formatter.format_error("Внутренняя ошибка сервера")
+        content={
+            "status": "error",
+            "error": "Внутренняя ошибка сервера",
+            "timestamp": datetime.now().isoformat()
+        }
     )
 
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
     return JSONResponse(
         status_code=404,
-        content=response_formatter.format_error("Ресурс не найден")
+        content={
+            "status": "error",
+            "error": "Ресурс не найден",
+            "timestamp": datetime.now().isoformat()
+        }
     )
 
 if __name__ == "__main__":
